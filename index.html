@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard MIP &amp; MID — Relatório Unificado</title>
+    <style>
+        :root {
+            --bg: #f4f7fb;
+            --card: #fff;
+            --ink: #172033;
+            --muted: #69758a;
+            --line: #e4e9f1;
+            --blue: #1769e0;
+            --orange: #f28c28;
+            --green: #16855b;
+            --red: #d94b4b
+        }
+        * {
+            box-sizing: border-box
+        }
+        body {
+            margin: 0;
+            background: var(--bg);
+            font-family: Segoe UI, Arial, sans-serif;
+            color: var(--ink)
+        }
+        header {
+            background: linear-gradient(135deg, #0d2f68, #1769e0);
+            color: #fff;
+            padding: 23px 30px;
+            position: sticky;
+            top: 0;
+            z-index: 5
+        }
+        .head {
+            max-width: 1500px;
+            margin: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px
+        }
+        h1 {
+            font-size: 24px;
+            margin: 0
+        }
+        .sub {
+            font-size: 13px;
+            opacity: .82;
+            margin-top: 5px
+        }
+        .actions {
+            display: flex;
+            gap: 8px
+        }
+        .btn {
+            padding: 10px 14px;
+            border-radius: 9px;
+            border: 1px solid #ffffff55;
+            background: #ffffff18;
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer
+        }
+        main {
+            max-width: 1500px;
+            margin: 20px auto;
+            padding: 0 20px 30px
+        }
+        .filters,
+        .kpi,
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 15px;
+            box-shadow: 0 8px 25px #19305212
+        }
+        .filters {
+            padding: 15px;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-bottom: 15px
+        }
+        .filter label {
+            display: block;
+            font-size: 10px;
+            text-transform: uppercase;
+            color: var(--muted);
+            font-weight: 800;
+            margin-bottom: 5px
+        }
+        select,
+        input {
+            width: 100%;
+            padding: 9px;
+            border: 1px solid #d4dce8;
+            border-radius: 8px
+        }
+        .range {
+            display: flex;
+            gap: 5px
+        }
+        .kpis {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-bottom: 15px
+        }
+        .kpi {
+            padding: 16px;
+            min-height: 105px;
+            position: relative
+        }
+        .lab {
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 700
+        }
+        .lab-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 6px
+        }
+        .lab-row .lab {
+            margin: 0
+        }
+        .kpi-select {
+            width: auto;
+            padding: 2px 6px;
+            font-size: 9px;
+            border-radius: 4px;
+            border: 1px solid #d4dce8;
+            background: white;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            flex-shrink: 0
+        }
+        .val {
+            font-size: 27px;
+            font-weight: 850;
+            margin: 9px 0 3px
+        }
+        .hint {
+            font-size: 10px;
+            color: var(--muted)
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px
+        }
+        .card {
+            padding: 17px
+        }
+        .full {
+            grid-column: 1 / -1
+        }
+        .card h2 {
+            font-size: 15px;
+            margin: 0 0 4px
+        }
+        .desc {
+            font-size: 11px;
+            color: var(--muted);
+            margin-bottom: 12px
+        }
+        .chart {
+            min-height: 285px
+        }
+        .hrow {
+            display: grid;
+            grid-template-columns: 145px 1fr 60px;
+            gap: 8px;
+            align-items: center;
+            margin: 9px 0
+        }
+        .hlabel {
+            font-size: 11px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+        .track {
+            height: 14px;
+            background: #edf1f6;
+            border-radius: 99px
+        }
+        .fill {
+            height: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #1769e0, #55a1ff)
+        }
+        .fill.orange {
+            background: linear-gradient(90deg, #f28c28, #ffbf70)
+        }
+        .hval {
+            text-align: right;
+            font-size: 11px;
+            font-weight: 800
+        }
+        .bars {
+            height: 275px;
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            padding: 10px;
+            border-bottom: 1px solid var(--line);
+            overflow-x: auto
+        }
+        .bw {
+            min-width: 58px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center
+        }
+        .bar {
+            width: 36px;
+            border-radius: 7px 7px 2px 2px;
+            background: linear-gradient(#40b887, #16855b);
+            min-height: 2px
+        }
+        .bar.orange {
+            background: linear-gradient(#ffb15c, #f28c28)
+        }
+        .bv {
+            font-size: 10px;
+            font-weight: 800;
+            margin-bottom: 4px
+        }
+        .bl {
+            font-size: 9px;
+            color: var(--muted);
+            margin-top: 7px;
+            white-space: nowrap
+        }
+        .table {
+            max-height: 400px;
+            overflow: auto;
+            border: 1px solid var(--line);
+            border-radius: 9px
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px
+        }
+        th,
+        td {
+            padding: 9px;
+            border-bottom: 1px solid var(--line);
+            text-align: right
+        }
+        th:first-child,
+        td:first-child {
+            text-align: left
+        }
+        th {
+            background: #f5f7fb;
+            color: #58657a;
+            font-size: 10px;
+            position: sticky;
+            top: 0
+        }
+        tr.click {
+            cursor: pointer
+        }
+        tr.click:hover {
+            background: #f5f9ff
+        }
+        .good {
+            color: var(--green);
+            font-weight: 800
+        }
+        .bad {
+            color: var(--red);
+            font-weight: 800
+        }
+        .empty {
+            text-align: center;
+            color: var(--muted);
+            padding: 100px 10px
+        }
+        .detail {
+            display: none
+        }
+        .detail.active {
+            display: block
+        }
+        .overview.hidden {
+            display: none
+        }
+        .back {
+            border: 0;
+            background: #eaf2ff;
+            color: #1559bd;
+            padding: 9px 13px;
+            border-radius: 9px;
+            font-weight: 800;
+            cursor: pointer
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px
+        }
+        .card-header h2 {
+            margin: 0
+        }
+        .card-header .desc {
+            margin-bottom: 0
+        }
+        .chart-select {
+            padding: 4px 10px;
+            font-size: 11px;
+            border-radius: 6px;
+            border: 1px solid #d4dce8;
+            background: white;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            flex-shrink: 0
+        }
+        .collector-card { grid-column: 1 / -1; margin-bottom: 15px; }
+        .collector-summary { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+        .collector-stat { border:1px solid var(--line); border-radius:12px; padding:14px; background:#f8fafc; }
+        .collector-stat .num { font-size:28px; font-weight:850; margin:6px 0 2px; }
+        .collector-stat .lbl { font-size:11px; color:var(--muted); font-weight:700; }
+        .collector-stat .sub { font-size:10px; color:var(--muted); margin-top:2px; }
+        .line-chart { min-height:310px; overflow-x:auto; }
+        .line-chart svg { width:100%; height:300px; min-width:650px; display:block; }
+        .chart-note { font-size:10px; color:var(--muted); text-align:center; margin-top:3px; }
+        @media(max-width:700px){ .collector-summary{grid-template-columns:1fr 1fr;} }
+        @media(max-width:450px){ .collector-summary{grid-template-columns:1fr;} }
+        @media(max-width:1100px) {
+            .filters {
+                grid-template-columns: repeat(3, 1fr)
+            }
+            .kpis {
+                grid-template-columns: repeat(3, 1fr)
+            }
+        }
+        @media(max-width:700px) {
+            .head {
+                flex-direction: column;
+                align-items: flex-start
+            }
+            .filters,
+            .kpis {
+                grid-template-columns: 1fr 1fr
+            }
+            .grid {
+                grid-template-columns: 1fr
+            }
+            .full {
+                grid-column: auto
+            }
+        }
+        @media(max-width:450px) {
+            .filters,
+            .kpis {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="head">
+            <div>
+                <h1>Relatório Consolidado das Unidades de Referência</h1>
+                <div class="sub">Dados de Produtividade, Aplicações, MIP/MID e Monitoramento de Esporos das Unidades de Referência</div>
+            </div>
+            <div class="actions">
+                <button class="btn" onclick="focusPB()">⌕ Focar Pato Branco</button>
+                <button class="btn" onclick="resetFilters()">↻ Resetar filtros</button>
+            </div>
+        </div>
+    </header>
+    <main>
+        <!-- VISÃO GERAL -->
+        <section class="overview">
+            <!-- Filtros -->
+            <div class="filters">
+                <div class="filter"><label>Produtor</label><select id="produtor"><option value="">Todos</option></select></div>
+                <div class="filter"><label>Macro-região</label><select id="h1" disabled><option value="Sudoeste" selected>Sudoeste</option></select></div>
+                <div class="filter"><label>Regional</label><select id="h2"><option value="">Todas</option></select></div>
+                <div class="filter"><label>Município</label><select id="mun"><option value="">Todos</option></select></div>
+                <div class="filter"><label>Status MIP/MID</label><select id="status"><option value="">Todos</option><option>Somente MIP</option><option>Somente MID</option><option>Ambos</option><option>Nenhum</option></select></div>
+                <div class="filter"><label>Produtividade (sc/ha)</label><div class="range"><input id="pmin" type="number" step="any" placeholder="mín."><input id="pmax" type="number" step="any" placeholder="máx."></div></div>
+                <div class="filter"><label>Aplicações totais</label><div class="range"><input id="amin" type="number" min="0" placeholder="mín."><input id="amax" type="number" min="0" placeholder="máx."></div></div>
+            </div>
+            <!-- KPIs (gerado via JS) -->
+            <div class="kpis" id="kpis"></div>
+            <div class="card full collector-card">
+                <div class="card-header">
+                    <div>
+                        <h2>Resumo dos coletores de esporos</h2>
+                        <div class="desc">As UR sem coletor ficam fora da análise de presença/ausência de esporos.</div>
+                    </div>
+                </div>
+                <div id="collectorSummary" class="collector-summary"></div>
+            </div>
+            <!-- Gráficos -->
+            <div class="grid">
+                <div class="card">
+                    <h2>UR por Regional</h2>
+                    <div class="desc">Quantidade de UR.</div>
+                    <div id="regionalChart" class="chart"></div>
+                </div>
+                <div class="card">
+                    <h2>Produtividade média por Regional</h2>
+                    <div class="desc">Média em sc/ha.</div>
+                    <div id="prodChart" class="chart"></div>
+                </div>
+                <!-- Card da distribuição de aplicações COM seletor -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h2>Distribuição de UR por aplicações</h2>
+                            <div class="desc">0, 1, 2, 3, 4 e 5+ aplicações.</div>
+                        </div>
+                        <select id="appTypeFilter" class="chart-select">
+                            <option value="total">Total (MIP + MID)</option>
+                            <option value="mip">MIP</option>
+                            <option value="mid">MID</option>
+                        </select>
+                    </div>
+                    <div id="appsChart" class="chart"></div>
+                </div>
+                <div class="card">
+                    <h2>Status de MIP / MID</h2>
+                    <div class="desc">Quantidade de UR com MIP e/ou MID.</div>
+                    <div id="statusChart" class="chart"></div>
+                </div>
+                <div class="card">
+                    <h2>Primeira presença de esporo por estádio fenológico</h2>
+                    <div class="desc">Quantidade de UR em que o primeiro esporo foi registrado em cada estádio.</div>
+                    <div id="sporeStageChart" class="line-chart"></div>
+                </div>
+                <div class="card">
+                    <h2>Primeira presença de esporo por data</h2>
+                    <div class="desc">Quantidade de UR pela data do primeiro registro de esporo.</div>
+                    <div id="sporeDateChart" class="line-chart"></div>
+                </div>
+                <div class="card full">
+                    <h2>Resumo por Regional</h2>
+                    <div class="desc">Verde = produtividade acima/igual à média global filtrada; vermelho = abaixo.</div>
+                    <div class="table">
+                        <table>
+                            <thead><tr><th>Regional</th><th>Total de UR</th><th>UR MIP</th><th>UR MID</th><th>Ambos (MIP+MID)</th><th>Média de aplicações</th><th>Produtividade média</th></tr></thead>
+                            <tbody id="regionalTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- DETALHE -->
+        <section class="detail">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
+                <h2 id="detailTitle"></h2>
+                <button class="back" onclick="back()">← Voltar</button>
+            </div>
+            <div class="kpis" id="detailKpis"></div>
+            <div class="card">
+                <h2>Lista detalhada das URs</h2>
+                <div class="table">
+                    <table>
+                        <thead><tr><th>Produtor</th><th>Regional</th><th>Município</th><th>Coletor</th><th>Esporos</th><th>Estádio</th><th>Primeiro esporo</th><th>MIP</th><th>MID</th><th>Total aplic.</th><th>Produtividade (sc/ha)</th></tr></thead>
+                        <tbody id="detailTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script>
+        // ------------------------------------------------------------
+        //  DADOS (extraídos do relatorio_unificado.xlsx)
+        // ------------------------------------------------------------
+        const DATA = [{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Dois Vizinhos","Município":"Boa Esperança do Iguaçu","Produtor":"CLAUDINO CANDIOTTO","Cultivar":"55I57 RSF IPRO","Total_Aplicacoes_MID":0.0,"Total_Aplicacoes_MIP":1.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":87.14,"Estádio Fenológico":"R1","Primeiro Esporo":"2025-12-05","Situação":"Com esporos","Data Emergência":"2025-10-26"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Dois Vizinhos","Município":"Cruzeiro do Iguaçu","Produtor":"Robson Bez","Cultivar":"51IX51RSF I2X","Total_Aplicacoes_MID":1.0,"Total_Aplicacoes_MIP":1.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":70.95,"Estádio Fenológico":"R5.1","Primeiro Esporo":"2025-12-22","Situação":"Com esporos","Data Emergência":"2025-10-02"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Dois Vizinhos","Município":"Dois Vizinhos","Produtor":"Giovani José Zanchetta","Cultivar":"57I59RSF IPRO","Total_Aplicacoes_MID":1.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":74.38,"Estádio Fenológico":"R5.1","Primeiro Esporo":"2026-01-06","Situação":"Com esporos","Data Emergência":"2025-10-28"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Dois Vizinhos","Município":"Dois Vizinhos","Produtor":"Vilson Mangini","Cultivar":"57I59RSF IPRO","Total_Aplicacoes_MID":1.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":52.07,"Estádio Fenológico":"R4","Primeiro Esporo":"2025-12-29","Situação":"Com esporos","Data Emergência":"2025-10-26"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Dois Vizinhos","Município":"Nova Prata do Iguaçu","Produtor":"Blevio Miguel","Cultivar":"56I59RSF IPRO","Total_Aplicacoes_MID":2.0,"Total_Aplicacoes_MIP":1.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":57.43,"Estádio Fenológico":"R4","Primeiro Esporo":"2025-12-15","Situação":"Com esporos","Data Emergência":"2025-10-22"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Dois Vizinhos","Município":"Nova Prata do Iguaçu","Produtor":"Valmor Dal Bello","Cultivar":"56I59RSF IPRO","Total_Aplicacoes_MID":2.0,"Total_Aplicacoes_MIP":1.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":67.35,"Estádio Fenológico":"R3","Primeiro Esporo":"2025-12-29","Situação":"Com esporos","Data Emergência":"2025-10-18"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Dois Vizinhos","Município":"Salto do Lontra","Produtor":"Domingos Verdi","Cultivar":"57I59RSF IPRO","Total_Aplicacoes_MID":2.0,"Total_Aplicacoes_MIP":2.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":66.11,"Estádio Fenológico":"R5.1","Primeiro Esporo":"2026-01-05","Situação":"Com esporos","Data Emergência":"2025-10-22"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Dois Vizinhos","Município":"Salto do Lontra","Produtor":"Idalecio Roberto Bernardi","Cultivar":"57I59RSF IPRO","Total_Aplicacoes_MID":2.0,"Total_Aplicacoes_MIP":1.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":57.5,"Estádio Fenológico":"R3","Primeiro Esporo":"2025-12-22","Situação":"Com esporos","Data Emergência":"2025-10-29"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Dois Vizinhos","Município":"Salto do Lontra","Produtor":"Marcio Ribeiro","Cultivar":"56I59RSF IPRO","Total_Aplicacoes_MID":2.0,"Total_Aplicacoes_MIP":1.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Não","Produtividade":77.22,"Estádio Fenológico":null,"Primeiro Esporo":null,"Situação":null,"Data Emergência":"2025-10-20"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Dois Vizinhos","Município":"Salto do Lontra","Produtor":"giomar leite","Cultivar":"57I59RSF IPRO","Total_Aplicacoes_MID":3.0,"Total_Aplicacoes_MIP":1.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":78.0,"Estádio Fenológico":"R3","Primeiro Esporo":"2025-12-05","Situação":"Com esporos","Data Emergência":"2025-10-02"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Dois Vizinhos","Município":"São Jorge d'Oeste","Produtor":"VICENTE BATISTELLA","Cultivar":"TMG 7262 RR","Total_Aplicacoes_MID":0.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Não","MID":"Não","Possui Coletor":"Sim","Produtividade":41.12,"Estádio Fenológico":0.0,"Primeiro Esporo":null,"Situação":"Sem esporos","Data Emergência":"2025-10-30"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Dois Vizinhos","Município":"São Jorge d'Oeste","Produtor":"VILSON LUIZ LORENZETTI","Cultivar":"57I59RSF IPRO","Total_Aplicacoes_MID":0.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Não","MID":"Não","Possui Coletor":"Sim","Produtividade":71.07,"Estádio Fenológico":"R3","Primeiro Esporo":"2025-12-11","Situação":"Com esporos","Data Emergência":"2025-11-14"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Bela Vista da Caroba","Produtor":"ALEXANDRE MAFFI","Cultivar":"53I54RSF IPRO","Total_Aplicacoes_MID":2.0,"Total_Aplicacoes_MIP":2.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":72.31,"Estádio Fenológico":"R1","Primeiro Esporo":"2025-12-29","Situação":"Com esporos","Data Emergência":"2025-11-22"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Bela Vista da Caroba","Produtor":"ILISEU QUEVEDO","Cultivar":"50I52 RSF IPRO","Total_Aplicacoes_MID":2.0,"Total_Aplicacoes_MIP":2.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":70.25,"Estádio Fenológico":"R5.3","Primeiro Esporo":"2026-01-13","Situação":"Com esporos","Data Emergência":"2025-10-17"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Capanema","Produtor":"MATHEUS RENAN SCHEID","Cultivar":"BRS 539","Total_Aplicacoes_MID":0.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Não","MID":"Não","Possui Coletor":"Sim","Produtividade":81.82,"Estádio Fenológico":"R5.1","Primeiro Esporo":"2025-12-03","Situação":"Com esporos","Data Emergência":"2025-10-03"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Capanema","Produtor":"Renato Kochhann","Cultivar":"580 I2X","Total_Aplicacoes_MID":0.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Não","MID":"Não","Possui Coletor":"Sim","Produtividade":76.45,"Estádio Fenológico":"R5.5","Primeiro Esporo":"2025-12-17","Situação":"Com esporos","Data Emergência":"2025-10-02"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Capanema","Produtor":"Rudimar Antonio Erthal","Cultivar":"56IX58RSF I2X","Total_Aplicacoes_MID":0.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Não","MID":"Não","Possui Coletor":"Sim","Produtividade":0.0,"Estádio Fenológico":"R5.1","Primeiro Esporo":"2025-12-03","Situação":"Com esporos","Data Emergência":"2025-10-03"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Flor da Serra do Sul","Produtor":"Ivair Arcanjo Ghizzi","Cultivar":"Don Mario 5.9i","Total_Aplicacoes_MID":3.0,"Total_Aplicacoes_MIP":3.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":35.0,"Estádio Fenológico":"V7","Primeiro Esporo":"2025-12-29","Situação":"Com esporos","Data Emergência":"2025-11-21"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Francisco Beltrão","Produtor":"Alciovane Gaspareto","Cultivar":"56IX58RSF I2X","Total_Aplicacoes_MID":0.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Não","MID":"Não","Possui Coletor":"Sim","Produtividade":0.0,"Estádio Fenológico":"R5.3","Primeiro Esporo":"2025-12-23","Situação":"Com esporos","Data Emergência":"2025-10-08"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Francisco Beltrão","Produtor":"Daniel Cluzene","Cultivar":"5501XTD","Total_Aplicacoes_MID":0.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Não","MID":"Não","Possui Coletor":"Sim","Produtividade":0.0,"Estádio Fenológico":"R5.3","Primeiro Esporo":"2025-12-29","Situação":"Com esporos","Data Emergência":"2025-09-24"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Francisco Beltrão","Produtor":"Edson Paulo Brufatti","Cultivar":"95Y42IPRO","Total_Aplicacoes_MID":0.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Não","MID":"Não","Possui Coletor":"Sim","Produtividade":0.0,"Estádio Fenológico":"R5.4","Primeiro Esporo":"2025-12-23","Situação":"Com esporos","Data Emergência":"2025-10-03"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Francisco Beltrão","Produtor":"Guilherme Balestrin Massing","Cultivar":"Neo 510 IPRO","Total_Aplicacoes_MID":0.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Não","MID":"Não","Possui Coletor":"Sim","Produtividade":92.6,"Estádio Fenológico":"R3","Primeiro Esporo":"2025-12-02","Situação":"Com esporos","Data Emergência":"2025-09-28"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Francisco Beltrão","Produtor":"Samoel Antonio Vandresen","Cultivar":"55I57 RSF IPRO","Total_Aplicacoes_MID":3.0,"Total_Aplicacoes_MIP":2.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":88.0,"Estádio Fenológico":"V2","Primeiro Esporo":"2025-12-03","Situação":"Com esporos","Data Emergência":"2025-10-14"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Marmeleiro","Produtor":"DANIEL FABRICIO PILZ","Cultivar":"54IX56RSF I2X","Total_Aplicacoes_MID":3.0,"Total_Aplicacoes_MIP":1.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":58.4,"Estádio Fenológico":"R3","Primeiro Esporo":"2025-12-30","Situação":"Com esporos","Data Emergência":"2025-10-11"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Marmeleiro","Produtor":"GLACIR PERBONI","Cultivar":"51IX51RSF I2X","Total_Aplicacoes_MID":0.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Não","MID":"Não","Possui Coletor":"Sim","Produtividade":81.25,"Estádio Fenológico":"R3","Primeiro Esporo":"2025-12-04","Situação":"Com esporos","Data Emergência":"2025-10-04"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Marmeleiro","Produtor":"Otto João Kehll","Cultivar":"95Y02 IPRO","Total_Aplicacoes_MID":1.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":68.75,"Estádio Fenológico":"R5.1","Primeiro Esporo":"2025-12-04","Situação":"Com esporos","Data Emergência":"2025-09-26"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Planalto","Produtor":"MARISA SCHNEIDER","Cultivar":"56I59RSF IPRO","Total_Aplicacoes_MID":1.0,"Total_Aplicacoes_MIP":1.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":40.0,"Estádio Fenológico":0.0,"Primeiro Esporo":null,"Situação":"Sem esporos","Data Emergência":"2025-10-03"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Pranchita","Produtor":"LEADRO JOSE PRESOTTO","Cultivar":"56I59RSF IPRO","Total_Aplicacoes_MID":3.0,"Total_Aplicacoes_MIP":1.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":72.31,"Estádio Fenológico":"R5.3","Primeiro Esporo":"2026-01-14","Situação":"Com esporos","Data Emergência":"2025-10-30"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Pérola d'Oeste","Produtor":"Andre Balduino Fassini","Cultivar":"56IX58RSF I2X","Total_Aplicacoes_MID":1.0,"Total_Aplicacoes_MIP":1.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":70.0,"Estádio Fenológico":"R6","Primeiro Esporo":"2026-01-14","Situação":"Com esporos","Data Emergência":"2025-10-03"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Pérola d'Oeste","Produtor":"Fábio de Conti","Cultivar":"BRS 546","Total_Aplicacoes_MID":0.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Não","MID":"Sim","Possui Coletor":"Sim","Produtividade":70.0,"Estádio Fenológico":"R3","Primeiro Esporo":"2026-01-14","Situação":"Com esporos","Data Emergência":"2026-10-08"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Realeza","Produtor":"Daltro João Girardi","Cultivar":"57I59RSF IPRO","Total_Aplicacoes_MID":0.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Não","MID":"Não","Possui Coletor":"Sim","Produtividade":0.0,"Estádio Fenológico":"R3","Primeiro Esporo":"2025-12-22","Situação":"Com esporos","Data Emergência":"2025-10-29"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Realeza","Produtor":"Leonir Schirmann","Cultivar":"580 I2X","Total_Aplicacoes_MID":2.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Não","MID":"Sim","Possui Coletor":"Sim","Produtividade":74.8,"Estádio Fenológico":"R5.4","Primeiro Esporo":"2026-01-28","Situação":"Com esporos","Data Emergência":"2025-10-27"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Renascença","Produtor":"Francisco Migliorini","Cultivar":"55I57 RSF IPRO","Total_Aplicacoes_MID":3.0,"Total_Aplicacoes_MIP":1.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":50.75,"Estádio Fenológico":"R5.3","Primeiro Esporo":"2025-12-22","Situação":"Com esporos","Data Emergência":"2025-10-07"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Renascença","Produtor":"Lisney Venzon","Cultivar":"95Y02 IPRO","Total_Aplicacoes_MID":1.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":70.0,"Estádio Fenológico":"R5.5","Primeiro Esporo":"2025-12-22","Situação":"Com esporos","Data Emergência":"2025-10-01"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Renascença","Produtor":"Volmar Antonietti","Cultivar":"95Y02 IPRO","Total_Aplicacoes_MID":1.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":65.0,"Estádio Fenológico":"R5.4","Primeiro Esporo":"2025-12-16","Situação":"Com esporos","Data Emergência":"2025-10-03"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Salgado Filho","Produtor":"Elio José Kruczkevicz","Cultivar":"TMG 7262RR","Total_Aplicacoes_MID":0.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Não","MID":"Não","Possui Coletor":"Sim","Produtividade":0.0,"Estádio Fenológico":"R5","Primeiro Esporo":"2025-12-22","Situação":"Com esporos","Data Emergência":"2025-11-30"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Santa Izabel do Oeste","Produtor":"JAIR JOSE DAMBROS","Cultivar":"55I57 RSF IPRO","Total_Aplicacoes_MID":0.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Não","MID":"Não","Possui Coletor":"Sim","Produtividade":0.0,"Estádio Fenológico":"R5.5","Primeiro Esporo":"2026-01-29","Situação":"Com esporos","Data Emergência":"2025-11-02"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Santa Izabel do Oeste","Produtor":"JUVIR FORLIM","Cultivar":"58I60 RSF IPRO","Total_Aplicacoes_MID":0.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Não","MID":"Não","Possui Coletor":"Sim","Produtividade":0.0,"Estádio Fenológico":"R6","Primeiro Esporo":"2026-02-06","Situação":"Com esporos","Data Emergência":"2025-10-27"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Francisco Beltrão","Município":"Verê","Produtor":"SELVINO BIZ","Cultivar":"55I57 RSF IPRO","Total_Aplicacoes_MID":0.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Não","MID":"Não","Possui Coletor":"Sim","Produtividade":0.0,"Estádio Fenológico":"R5.4","Primeiro Esporo":"2025-12-23","Situação":"Com esporos","Data Emergência":"2025-11-07"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Pato Branco","Município":"Bom Sucesso do Sul","Produtor":"Alvadir Pereira","Cultivar":"55I57 RSF IPRO","Total_Aplicacoes_MID":1.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":73.55,"Estádio Fenológico":"R3","Primeiro Esporo":"2025-12-05","Situação":"Com esporos","Data Emergência":"2025-09-30"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Pato Branco","Município":"Chopinzinho","Produtor":"Ilseu Peretti","Cultivar":"BRS 1056IPRO","Total_Aplicacoes_MID":0.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Não","MID":"Não","Possui Coletor":"Sim","Produtividade":90.91,"Estádio Fenológico":"V7","Primeiro Esporo":"2025-12-22","Situação":"Com esporos","Data Emergência":"2025-11-11"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Pato Branco","Município":"Coronel Domingos Soares","Produtor":"Guilherme Balestrin Massing","Cultivar":"55I57RSF IPRO","Total_Aplicacoes_MID":0.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Não","MID":"Não","Possui Coletor":"Sim","Produtividade":97.8,"Estádio Fenológico":"V4","Primeiro Esporo":"2025-11-25","Situação":"Com esporos","Data Emergência":"2025-10-30"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Pato Branco","Município":"Coronel Vivida","Produtor":"Guilherme Balestrin Massing","Cultivar":"55I57 RSF IPRO","Total_Aplicacoes_MID":0.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Não","MID":"Não","Possui Coletor":"Sim","Produtividade":85.4,"Estádio Fenológico":"V5","Primeiro Esporo":"2025-11-26","Situação":"Com esporos","Data Emergência":"2025-10-30"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Pato Branco","Município":"Coronel Vivida","Produtor":"Jelmir Tasca","Cultivar":"560 IPRO","Total_Aplicacoes_MID":3.0,"Total_Aplicacoes_MIP":1.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":68.18,"Estádio Fenológico":"V3","Primeiro Esporo":"2025-12-10","Situação":"Com esporos","Data Emergência":"2025-11-13"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Pato Branco","Município":"Coronel Vivida","Produtor":"Vinicius Dariel Bocchi","Cultivar":"50I52 RSF IPRO","Total_Aplicacoes_MID":3.0,"Total_Aplicacoes_MIP":1.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":64.05,"Estádio Fenológico":"R3","Primeiro Esporo":"2025-12-10","Situação":"Com esporos","Data Emergência":"2025-10-05"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Pato Branco","Município":"Itapejara d'Oeste","Produtor":"Ademilson Pegorini","Cultivar":"56I59RSF IPRO","Total_Aplicacoes_MID":3.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Não","Produtividade":78.64,"Estádio Fenológico":null,"Primeiro Esporo":null,"Situação":null,"Data Emergência":"2025-09-30"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Pato Branco","Município":"Itapejara d'Oeste","Produtor":"Claudemir Martinazzo","Cultivar":"55I57 RSF IPRO","Total_Aplicacoes_MID":2.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":53.72,"Estádio Fenológico":"R4","Primeiro Esporo":"2025-12-09","Situação":"Com esporos","Data Emergência":"2025-09-29"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Pato Branco","Município":"Mangueirinha","Produtor":"Laercio Dalla Vechia","Cultivar":"55I57 RSF IPRO","Total_Aplicacoes_MID":0.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Não","MID":"Não","Possui Coletor":"Sim","Produtividade":107.44,"Estádio Fenológico":"R1","Primeiro Esporo":"2025-12-11","Situação":"Com esporos","Data Emergência":"2025-11-03"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Pato Branco","Município":"Mariópolis","Produtor":"Adelar Zanus","Cultivar":"55I57 RSF IPRO","Total_Aplicacoes_MID":3.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":94.07,"Estádio Fenológico":"V6","Primeiro Esporo":"2025-12-04","Situação":"Com esporos","Data Emergência":"2025-10-18"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Pato Branco","Município":"Mariópolis","Produtor":"Marcelo Albani","Cultivar":"55I57 RSF IPRO","Total_Aplicacoes_MID":3.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":104.56,"Estádio Fenológico":"R2","Primeiro Esporo":"2025-12-04","Situação":"Com esporos","Data Emergência":"2025-10-05"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Pato Branco","Município":"Pato Branco","Produtor":"Carlos Eduardo Carnieletto","Cultivar":"55I57 RSF IPRO","Total_Aplicacoes_MID":4.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":95.04,"Estádio Fenológico":"R1","Primeiro Esporo":"2025-12-11","Situação":"Com esporos","Data Emergência":"2025-10-24"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Pato Branco","Município":"Pato Branco","Produtor":"Cidicley Caldatto","Cultivar":"55I57 RSF IPRO","Total_Aplicacoes_MID":2.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":62.4,"Estádio Fenológico":"R5.3","Primeiro Esporo":"2025-12-16","Situação":"Com esporos","Data Emergência":"2025-09-22"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Pato Branco","Município":"Pato Branco","Produtor":"ROMILDO VASATA","Cultivar":"Neo 510 IPRO","Total_Aplicacoes_MID":5.0,"Total_Aplicacoes_MIP":0.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":76.94,"Estádio Fenológico":"V5","Primeiro Esporo":"2025-12-03","Situação":"Com esporos","Data Emergência":"2025-10-25"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Pato Branco","Município":"Sulina","Produtor":"Vilmar Bazzanella","Cultivar":"55I57 RSF IPRO","Total_Aplicacoes_MID":2.0,"Total_Aplicacoes_MIP":1.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":72.4,"Estádio Fenológico":"R2","Primeiro Esporo":"2025-12-10","Situação":"Com esporos","Data Emergência":"2025-10-14"},{"Hierarquia 1":"Sudoeste","Hierarquia 2":"Pato Branco","Município":"Vitorino","Produtor":"Jocemar Martinello","Cultivar":"55I57 RSF IPRO","Total_Aplicacoes_MID":4.0,"Total_Aplicacoes_MIP":1.0,"MIP":"Sim","MID":"Sim","Possui Coletor":"Sim","Produtividade":85.95,"Estádio Fenológico":"R4","Primeiro Esporo":"2025-12-04","Situação":"Com esporos","Data Emergência":"2025-09-28"}];
+
+        // ------------------------------------------------------------
+        // ------------------------------------------------------------
+        //  UTILITÁRIOS
+        // ------------------------------------------------------------
+        const $ = id => document.getElementById(id);
+        const num = v => Number(v) || 0;
+        const apps = r => num(r.Total_Aplicacoes_MIP) + num(r.Total_Aplicacoes_MID);
+        const statusOf = r => r.MIP === "Sim" && r.MID === "Sim" ? "Ambos" :
+            r.MIP === "Sim" ? "Somente MIP" :
+            r.MID === "Sim" ? "Somente MID" : "Nenhum";
+        const esc = s => String(s ?? "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;",
+            "'": "&#39;" }[m]));
+        const unique = a => [...new Set(a)].filter(v => v !== null && v !== undefined && v !== "").sort((a, b) => String(a).localeCompare(String(b), "pt-BR"));
+
+        function fill(id, values, label) {
+            const s = $(id), old = s.value;
+            s.innerHTML = `<option value="">${label}</option>` +
+                unique(values).map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join("");
+            if ([...s.options].some(o => o.value === old)) s.value = old;
+        }
+
+        function filtered() {
+            const prod = $("produtor").value, h1 = $("h1").value, h2 = $("h2").value,
+                mu = $("mun").value, st = $("status").value;
+            const p1 = $("pmin").value === "" ? -Infinity : num($("pmin").value);
+            const p2 = $("pmax").value === "" ? Infinity : num($("pmax").value);
+            const a1 = $("amin").value === "" ? -Infinity : num($("amin").value);
+            const a2 = $("amax").value === "" ? Infinity : num($("amax").value);
+            return DATA.filter(r =>
+                (!prod || r["Produtor"] === prod) &&
+                (!h1 || r["Hierarquia 1"] === h1) &&
+                (!h2 || r["Hierarquia 2"] === h2) &&
+                (!mu || r["Município"] === mu) &&
+                (!st || statusOf(r) === st) &&
+                num(r.Produtividade) >= p1 && num(r.Produtividade) <= p2 &&
+                apps(r) >= a1 && apps(r) <= a2
+            );
+        }
+
+        function meanP(rows) {
+            const v = rows.map(r => num(r.Produtividade)).filter(v => v > 0);
+            return v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0;
+        }
+        function meanA(rows) {
+            return rows.length ? rows.reduce((s, r) => s + apps(r), 0) / rows.length : 0;
+        }
+        function pct(x, n) { return n ? (x / n * 100).toFixed(1) + "%" : "0.0%"; }
+        function kpi(l, v, h = "") {
+            return `<div class="kpi"><div class="lab">${l}</div><div class="val">${v}</div><div class="hint">${h}</div></div>`;
+        }
+        function groupCount(rows, key) {
+            const m = {};
+            rows.forEach(r => { const k = r[key]; if (k !== null && k !== undefined && k !== "") m[k] = (m[k] || 0) + 1; });
+            return Object.entries(m).sort((a, b) => b[1] - a[1]);
+        }
+        function groupMean(rows, key) {
+            const m = {};
+            rows.forEach(r => {
+                const v = num(r.Produtividade);
+                if (v > 0 && r[key]) (m[r[key]] = m[r[key]] || []).push(v);
+            });
+            return Object.entries(m).map(([k, v]) => [k, v.reduce((a, b) => a + b, 0) / v.length])
+                .sort((a, b) => b[1] - a[1]);
+        }
+        function hbars(id, data, orange = false, decimal = false) {
+            if (!data.length) { $(id).innerHTML = '<div class="empty">Sem dados para os filtros atuais.</div>'; return; }
+            const mx = Math.max(...data.map(x => x[1]));
+            $(id).innerHTML = data.map(([k, v]) =>
+                `<div class="hrow"><div class="hlabel" title="${esc(k)}">${esc(k)}</div><div class="track"><div class="fill ${orange?'orange':''}" style="width:${mx ? v/mx*100 : 0}%"></div></div><div class="hval">${decimal?v.toLocaleString("pt-BR",{maximumFractionDigits:2}):v}</div></div>`
+            ).join("");
+        }
+        function bars(id, data, orange = false) {
+            if (!data.length) { $(id).innerHTML = '<div class="empty">Sem dados para os filtros atuais.</div>'; return; }
+            const mx = Math.max(1, ...data.map(x => x[1]));
+            $(id).innerHTML = `<div class="bars">${data.map(([k,v])=>`<div class="bw"><div class="bv">${v}</div><div class="bar ${orange?'orange':''}" title="${esc(k)}: ${v}" style="height:${Math.max(2,v/mx*210)}px"></div><div class="bl">${esc(k)}</div></div>`).join("")}</div>`;
+        }
+
+        let noAppMode = "total";
+        let appTypeMode = "total";
+
+        function renderCollectorSummary(rows) {
+            const total = rows.length;
+            const withCollector = rows.filter(r => r["Possui Coletor"] === "Sim");
+            const withoutCollector = rows.filter(r => r["Possui Coletor"] === "Não");
+            const withSpores = withCollector.filter(r => r["Primeiro Esporo"]);
+            const withoutSpores = withCollector.filter(r => !r["Primeiro Esporo"] || String(r["Estádio Fenológico"]) === "0");
+            $("collectorSummary").innerHTML = [
+                ["UR com coletor", withCollector.length, pct(withCollector.length,total)],
+                ["UR sem coletor", withoutCollector.length, pct(withoutCollector.length,total)],
+                ["Com esporos", withSpores.length, pct(withSpores.length,withCollector.length) + " das UR com coletor"],
+                ["Sem esporos", withoutSpores.length, pct(withoutSpores.length,withCollector.length) + " das UR com coletor"]
+            ].map(x=>`<div class="collector-stat"><div class="lbl">${x[0]}</div><div class="num">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join("");
+        }
+
+        function renderLineChart(id, labels, values, title) {
+            const el = $(id);
+            if (!labels.length) { el.innerHTML='<div class="empty">Sem dados para os filtros atuais.</div>'; return; }
+            const W=Math.max(650, Math.min(1200, labels.length*42)), H=300, L=50, R=18, T=20, B=52;
+            const iw=W-L-R, ih=H-T-B, max=Math.max(1,...values), step=labels.length===1?iw/2:iw/(labels.length-1);
+            const pts=values.map((v,i)=>[L+(labels.length===1?iw/2:i*step), T+ih-(v/max)*ih]);
+            let svg=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}">`;
+            for(let i=0;i<=4;i++){const y=T+ih-(ih*i/4), val=Math.round(max*i/4);
+                svg+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="#e4e9f1" stroke-width="1"/><text x="${L-8}" y="${y+4}" text-anchor="end" font-size="10" fill="#69758a">${val}</text>`;}
+            const d=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+            svg+=`<path d="${d}" fill="none" stroke="#1769e0" stroke-width="3"/>`;
+            pts.forEach((p,i)=>{svg+=`<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="#1769e0"/><text x="${p[0]}" y="${p[1]-9}" text-anchor="middle" font-size="10" font-weight="700" fill="#172033">${values[i]}</text>`;});
+            labels.forEach((lab,i)=>{
+                const tooltip = title.includes("por data") ? sporeDateLabels?.[i] || lab : lab;
+                svg+=`<text x="${pts[i][0]}" y="${H-22}" text-anchor="start" font-size="9" fill="#69758a" transform="rotate(-45 ${pts[i][0]} ${H-22})">${esc(lab)}</text>`;
+                if (title.includes("por data")) {
+                    svg+=`<g class="spore-point" tabindex="0"><circle cx="${pts[i][0]}" cy="${pts[i][1]}" r="7" fill="transparent"><title>${esc(tooltip)} — ${values[i]} UR</title></circle></g>`;
+                }
+            });
+            svg+='</svg>';
+            el.innerHTML=svg;
+        }
+
+        const stageOrder=['V2','V3','V4','V5','V6','V7','R1','R2','R3','R4','R5','R5.1','R5.2','R5.3','R5.4','R5.5','R6'];
+
+        let sporeDateLabels = [];
+        function renderSporeCharts(rows) {
+            const collectors=rows.filter(r=>r["Possui Coletor"]==="Sim");
+            const sporeRows=collectors.filter(r=>r["Primeiro Esporo"] && String(r["Estádio Fenológico"])!=="0");
+            const stageMap={};
+            stageOrder.forEach(s=>stageMap[s]=0);
+            sporeRows.forEach(r=>{const s=String(r["Estádio Fenológico"]); if(stageMap[s]!==undefined) stageMap[s]++;});
+            const stageLabels=stageOrder.filter(s=>stageMap[s]>0);
+            renderLineChart("sporeStageChart",stageLabels,stageLabels.map(s=>stageMap[s]),"Primeira presença de esporo por estádio fenológico");
+
+            const dateMap={};
+            sporeRows.forEach(r=>{if(r["Primeiro Esporo"]) dateMap[r["Primeiro Esporo"]]=(dateMap[r["Primeiro Esporo"]]||0)+1;});
+            const dates=Object.keys(dateMap).sort();
+            const labels=dates.map(d=>{const [y,m,day]=d.split("-"); return `${day}/${m}`;});
+            sporeDateLabels = dates;
+            renderLineChart("sporeDateChart",labels,dates.map(d=>dateMap[d]),"Primeira presença de esporo por data");
+        }
+
+        function render() {
+            const rows = filtered(), n = rows.length;
+            const m = rows.filter(r => r.MIP === "Sim").length;
+            const mi = rows.filter(r => r.MID === "Sim").length;
+            const b = rows.filter(r => r.MIP === "Sim" && r.MID === "Sim").length;
+            const p = meanP(rows);
+            const zTotal = rows.filter(r => num(r.Total_Aplicacoes_MIP) === 0 && num(r.Total_Aplicacoes_MID) === 0).length;
+            const zMip = rows.filter(r => num(r.Total_Aplicacoes_MIP) === 0).length;
+            const zMid = rows.filter(r => num(r.Total_Aplicacoes_MID) === 0).length;
+
+            $("kpis").innerHTML = [
+                kpi("Total UR", n),
+                kpi("% MIP", pct(m,n)),
+                kpi("% MID", pct(mi,n)),
+                kpi("% Ambos", pct(b,n)),
+                kpi("Média aplicações", meanA(rows).toLocaleString("pt-BR",{maximumFractionDigits:2})),
+                kpi("Produtividade média", p.toLocaleString("pt-BR",{maximumFractionDigits:2})+" sc/ha")
+            ].join("");
+
+            renderCollectorSummary(rows);
+            hbars("regionalChart", groupCount(rows, "Hierarquia 2"));
+            hbars("prodChart", groupMean(rows, "Hierarquia 2"), true, true);
+
+            const getVal = r => appTypeMode==="mip" ? num(r.Total_Aplicacoes_MIP) : appTypeMode==="mid" ? num(r.Total_Aplicacoes_MID) : apps(r);
+            const buckets=[0,1,2,3,4,5];
+            const appData=buckets.map(i=>[i===5?"5+":String(i), rows.filter(r=>getVal(r)===(i===5?5:i) || (i===5 && getVal(r)>=5)).length]);
+            bars("appsChart",appData,false);
+            bars("statusChart",["Somente MIP","Somente MID","Ambos","Nenhum"].map(s=>[s,rows.filter(r=>statusOf(r)===s).length]),true);
+            renderSporeCharts(rows);
+
+            const globalMean=meanP(rows);
+            $("regionalTable").innerHTML=groupCount(rows,"Hierarquia 2").map(([reg])=>{
+                const q=rows.filter(r=>r["Hierarquia 2"]===reg), v=meanP(q);
+                return `<tr class="click" onclick="openDetail('${esc(reg)}')"><td>${esc(reg)}</td><td>${q.length}</td><td>${q.filter(r=>r.MIP==="Sim").length}</td><td>${q.filter(r=>r.MID==="Sim").length}</td><td>${q.filter(r=>r.MIP==="Sim"&&r.MID==="Sim").length}</td><td>${meanA(q).toLocaleString("pt-BR",{maximumFractionDigits:2})}</td><td class="${v>=globalMean?'good':'bad'}">${v.toLocaleString("pt-BR",{maximumFractionDigits:2})}</td></tr>`;
+            }).join("") || '<tr><td colspan="7">Sem dados</td></tr>';
+
+            // filtros dependentes, preservando produtor como filtro principal
+            const baseForGeo = DATA.filter(r => !$("produtor").value || r["Produtor"] === $("produtor").value);
+            if (!$("produtor").options.length || $("produtor").options.length === 1) fill("produtor", DATA.map(r=>r["Produtor"]), "Todos");
+            // restaura o produtor selecionado após preencher
+            // os demais filtros respeitam produtor
+            const prod=$("produtor").value;
+            const geo=DATA.filter(r => !prod || r["Produtor"]===prod);
+            fill("h2", geo.filter(r=>!$("h1").value || r["Hierarquia 1"]===$("h1").value).map(r=>r["Hierarquia 2"]), "Todas");
+            fill("mun", geo.filter(r=>(!$("h1").value || r["Hierarquia 1"]===$("h1").value)&&(!$("h2").value || r["Hierarquia 2"]===$("h2").value)).map(r=>r["Município"]), "Todos");
+        }
+        // ------------------------------------------------------------
+        //  DETALHE POR REGIONAL
+        // ------------------------------------------------------------
+        function openDetail(reg) {
+            const rows = filtered().filter(r => r["Hierarquia 2"] === reg);
+            const n=rows.length, m=rows.filter(r=>r.MIP==="Sim").length, mi=rows.filter(r=>r.MID==="Sim").length,
+                b=rows.filter(r=>r.MIP==="Sim"&&r.MID==="Sim").length;
+            $("detailTitle").textContent="Detalhe — "+reg;
+            $("detailKpis").innerHTML=[
+                kpi("Total UR",n), kpi("% MIP",pct(m,n)), kpi("% MID",pct(mi,n)), kpi("% Ambos",pct(b,n)),
+                kpi("UR com coletor",rows.filter(r=>r["Possui Coletor"]==="Sim").length),
+                kpi("Com esporos",rows.filter(r=>r["Possui Coletor"]==="Sim"&&r["Primeiro Esporo"]).length)
+            ].join("");
+            $("detailTable").innerHTML=rows.map(r=>{
+                const first=r["Primeiro Esporo"] ? new Date(r["Primeiro Esporo"]+"T00:00:00").toLocaleDateString("pt-BR") : "—";
+                const sp=r["Possui Coletor"]==="Sim" ? (String(r["Estádio Fenológico"])==="0" || !r["Primeiro Esporo"] ? "Não" : "Sim") : "—";
+                return `<tr>
+                    <td>${esc(r["Produtor"])}</td><td>${esc(r["Hierarquia 2"])}</td><td>${esc(r["Município"])}</td>
+                    <td>${esc(r["Possui Coletor"])}</td><td>${sp}</td><td>${r["Estádio Fenológico"]===null?"—":esc(r["Estádio Fenológico"])}</td>
+                    <td>${first}</td><td>${esc(r.MIP)}</td><td>${esc(r.MID)}</td><td>${apps(r)}</td>
+                    <td>${num(r.Produtividade).toLocaleString("pt-BR",{maximumFractionDigits:2})}</td>
+                </tr>`;
+            }).join("");
+            document.querySelector(".overview").classList.add("hidden");
+            document.querySelector(".detail").classList.add("active");
+            scrollTo(0,0);
+        }
+
+        function back() {
+            document.querySelector(".detail").classList.remove("active");
+            document.querySelector(".overview").classList.remove("hidden");
+            scrollTo(0, 0);
+        }
+
+        // ------------------------------------------------------------
+        //  AÇÕES RÁPIDAS
+        // ------------------------------------------------------------
+        function focusPB() { $("h2").value = "Pato Branco";
+            render(); }
+
+        function resetFilters() {
+            ["produtor", "h1", "h2", "mun", "status", "pmin", "pmax", "amin", "amax"].forEach(id => $(id).value = "");
+            noAppMode = "total";
+            appTypeMode = "total";
+            const selNo = document.getElementById("noAppFilter");
+            if (selNo) selNo.value = "total";
+            const selApp = document.getElementById("appTypeFilter");
+            if (selApp) selApp.value = "total";
+            render();
+        }
+
+        // ------------------------------------------------------------
+        //  EVENTOS
+        // ------------------------------------------------------------
+        // Filtros principais
+        ["produtor", "h1", "h2", "mun", "status", "pmin", "pmax", "amin", "amax"].forEach(id => {
+            $(id).addEventListener("input", render);
+            $(id).addEventListener("change", render);
+        });
+
+        // Seletor do KPI "sem aplicações" (delegação)
+        document.addEventListener("change", function(e) {
+            if (e.target && e.target.id === "noAppFilter") {
+                noAppMode = e.target.value;
+                render();
+            }
+            if (e.target && e.target.id === "appTypeFilter") {
+                appTypeMode = e.target.value;
+                render();
+            }
+        });
+
+        // Seletor do gráfico de aplicações (já existe no HTML, precisa do listener)
+        // O seletor #appTypeFilter é capturado pelo evento change acima.
+
+        // ------------------------------------------------------------
+        //  INICIALIZA
+        // ------------------------------------------------------------
+        render();
+    </script>
+</body>
+</html>
